@@ -1,13 +1,13 @@
 import numpy as np
 
 def compute_mfccs(audio_sig, fs, fft_size, window_size=2048):
-    print("Computing mfccs")
-    dtft_windows = fft_window(audio_sig, fs, fft_size, window_size)
+    # dtft_windows = fft_window(audio_sig, fs, fft_size, window_size)
 
     # ... fft_window()
     # loop
     # ... mfcc()
     # append to our matrix
+    pass
 
 def mfcc(fft_coefs, Nb=40):
     """
