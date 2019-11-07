@@ -5,43 +5,21 @@ from scipy.io.wavfile import write
 MIN_FREQ = 20
 # MAX_FREQ depends on each signal's fs = {fs/2}
 
-def compute_mfccs(audio_sig, fs, fft_size, window_size=2048, tapered=True):
+def compute_mfccs(audio_sig, fs, fft_size, window_size=2048):
     # dtft_windows = fft_window(audio_sig, fs, fft_size, window_size)
     print(audio_sig.size)
     dtft_windows = np.array(())
-    computed_audio = np.array(())
 
     for i in range( int(len(audio_sig) / window_size)):
         start_index = i*window_size
         end_index = (i+1)*window_size
-        if tapered:
-            pass
-        else:
-            signal_window = get_windowed_audio_no_taper(audio_sig, start_index, end_index)
+        signal_window = get_audio_window_tapered_hamming(audio_sig, start_index, end_index)
         dtft = fft_window(signal_window).reshape((window_size,1))
-        audio = np.fft.ifft(dtft)
-        # break # TODO append to an array and play back # TODO call mfccs()
 
         if dtft_windows.size == 0:
             dtft_windows = dtft
-            computed_audio = audio
         else:
             dtft_windows = np.append(dtft_windows, dtft, axis=1)
-            computed_audio = np.append(computed_audio, audio)
-
-    print(dtft_windows.shape)
-    scaled = np.int16(computed_audio.real/np.max(np.abs(computed_audio.real)) * 32767)
-    write("test.wav", fs, scaled)
-    scaled2 = np.int16(audio_sig/np.max(np.abs(audio_sig)) * 32767)
-    write("test2.wav", fs, scaled2)
-
-# data = np.random.uniform(-1,1,44100) # 44100 random samples between -1 and 1
-# scaled = np.int16(data/np.max(np.abs(data)) * 32767)
-# write('test.wav', 44100, scaled)
-        
-
-def get_windowed_audio_no_taper(audio_sig, start_index, end_index):
-    return audio_sig[start_index:end_index]
 
 def get_audio_window_tapered_hamming(audio_sig, start_index, end_index):
     # I think extract the window then do point wise multiplication with the hamming window
