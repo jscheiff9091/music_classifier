@@ -57,19 +57,36 @@ def test_fft():
     # I should do the dtft and then put in time to see if I hear clipping
 
 def test_clipping():
+    """
+    Demonstrates clipping if the tappered window is not used
+    """
     print("Test clipping")
     last_time = 24
     window_size = 2048
     fft_size = 1000 #?
 
     # Load wavs
-    fs, data = wavfile.read("wavs/chroma.wav")
-    compute_mfccs(data, fs, fft_size, window_size, tapered=False)
+    fs, audio_sig = wavfile.read("wavs/chroma.wav")
+    computed_audio = np.array(())
 
-    # load one of the songs, perform fft in time, perform ifft and play back -> clipping?
-    # then test if we apply the hamming window
+    for i in range( int(len(audio_sig) / window_size)):
+        start_index = i*window_size
+        end_index = (i+1)*window_size
+        signal_window = audio_sig[start_index:end_index] # clipping here
+        dtft = fft_window(signal_window).reshape((window_size,1))
+        audio = np.fft.ifft(dtft)
 
+        if computed_audio.size == 0:
+            computed_audio = audio
+        else:
+            computed_audio = np.append(computed_audio, audio)
 
+    scaled = np.int16(computed_audio.real/np.max(np.abs(computed_audio.real)) * 32767)
+    write("clipping.wav", fs, scaled)
+
+    # Verification of conversion of units 64 -> 16 bit functional
+    # scaled2 = np.int16(audio_sig/np.max(np.abs(audio_sig)) * 32767)
+    # write("normal.wav", fs, scaled2)
     
 if __name__ == "__main__":
     # test_fft()
