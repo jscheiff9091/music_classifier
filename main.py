@@ -62,8 +62,6 @@ def test_clipping():
     window_size = 2048
     fft_size = 1000 #?
 
-    audio_signals = {}
-
     # Load wavs
     fs, data = wavfile.read("wavs/chroma.wav")
     compute_mfccs(data, fs, fft_size, window_size, tapered=False)
