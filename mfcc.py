@@ -30,7 +30,7 @@ def get_audio_window_tapered_hamming(audio_sig, start_index, end_index):
     # I think extract the window then do point wise multiplication with the hamming window
     pass
 
-def mfcc(fft_coefs, fft_size, Nb=40):
+def mfcc(fft_coefs, fft_size, fs, Nb=40):
     """
     Computes the mfccs for a 24s track snipit
 
@@ -40,6 +40,8 @@ def mfcc(fft_coefs, fft_size, Nb=40):
         fourier transform coefficeints of the track up to T=24s
     fft_size : int
         Spacing in between linear frequencies from 0 to fs/2
+    fs : int
+        Rate of sampling of .wav file being analyzed
     Nb : int
         number of filters
 
@@ -48,11 +50,23 @@ def mfcc(fft_coefs, fft_size, Nb=40):
     mfccs : matrix { 40 x 258 }
         Mel Frequency Cepstral Coefficients
     """
-    hop_size = fft_size / 2
+    return
+
+
+
+def create_filter_bank(fs, Nb=40):
+    #constants
     f_max = fs/2
+
+    #Find Mel scale center frequencies
     mel_min = np.log10(1 + MIN_FREQ/700)
     mel_max = np.log10(1 + f_max/700)
-    mel_range = (mel_max - mel_min) / Nb
+    mel_step = (mel_max - mel_min) / (Nb + 2)
+
+    #convert mel center frequencies to linear scale
+
+    #define filters between
+
 
 
 def fft_window(audio_sig):
