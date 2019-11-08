@@ -87,8 +87,61 @@ def test_clipping():
     # Verification of conversion of units 64 -> 16 bit functional
     # scaled2 = np.int16(audio_sig/np.max(np.abs(audio_sig)) * 32767)
     # write("normal.wav", fs, scaled2)
+
+def test_no_clipping(): # TODO move these to another source file
+    """
+    Demonstrates no clipping when using a tapered window
+    """
+    print("Test avoiding clipping")
+    last_time = 24
+    window_size = 2048
+    fft_size = 1000 #?
+
+    # Load wavs
+    fs, audio_sig = wavfile.read("wavs/chroma.wav")
+    computed_audio = np.array(())
+
+    num_bins = int(2 * (audio_sig.size / window_size))
+    for i in range(num_bins-1):
+        N = int(window_size/2)
+        start_index = i* int(window_size/2)
+        end_index = start_index + window_size
+        signal_window = np.float64(audio_sig[start_index:end_index].copy())
+        
+        signal_window *= np.hamming(window_size)
+        # print(signal_window)
+        # plt.plot(np.blackman(window_size))
+        # plt.plot(signal_window)
+        # plt.show()  
+
+        # dtft = fft_window(signal_window).reshape((window_size,1))
+        audio = np.fft.ifft(np.fft.fft(signal_window))
+        audio = audio.reshape((audio.size, 1))
+
+        if computed_audio.size == 0:
+            computed_audio = audio
+        else:
+            # print(computed_audio.shape)
+            # print(audio.shape)
+            computed_audio[-N:] = computed_audio[-N:] + audio[:N]
+            # print(computed_audio.shape)
+            # print(audio.shape)
+            computed_audio = np.append(computed_audio, audio[N:])
+            computed_audio = computed_audio.reshape((computed_audio.size,1))
+            # fig = plt.figure()
+            # ax = fig.add_subplot(111)
+            # ax.plot(computed_audio)
+            # ax2 = fig.add_subplot(211)
+            # ax2.plot(audio_sig[:end_index])
+            # plt.show()
+            # print("---")
+    print(audio_sig.size)
+    print(computed_audio.size)
+    scaled = np.int16(computed_audio.real/np.max(np.abs(computed_audio.real)) * 32767)
+    write("normal.wav", fs, scaled)
     
 if __name__ == "__main__":
     # test_fft()
-    test_clipping()
+    # test_clipping()
+    test_no_clipping()
     # problem1()
