@@ -8,18 +8,23 @@ MIN_FREQ = 20
 def compute_mfccs(audio_sig, fs, fft_size, window_size=2048):
     # dtft_windows = fft_window(audio_sig, fs, fft_size, window_size)
     print(audio_sig.size)
-    dtft_windows = np.array(())
+    mfcc_array = np.array(())
 
-    for i in range( int(len(audio_sig) / window_size)):
-        start_index = i*window_size
-        end_index = (i+1)*window_size
-        signal_window = get_audio_window_tapered_hamming(audio_sig, start_index, end_index)
-        dtft = fft_window(signal_window).reshape((window_size,1))
+    num_bins = int(2 * (audio_sig.size / window_size))
+    for i in range(num_bins-1):
+        start_index = i* int(window_size/2)
+        end_index = start_index + window_size
+        signal_window = np.float64(audio_sig[start_index:end_index].copy())
+        
+        signal_window *= np.hamming(window_size)
 
-        if dtft_windows.size == 0:
-            dtft_windows = dtft
+        dtft = np.fft.fft(signal_window)
+        mfccs = mfcc(dtft, fft_size)
+
+        if len(mfcc_array) == 0:
+            mfcc_array = mfccs
         else:
-            dtft_windows = np.append(dtft_windows, dtft, axis=1)
+            mfcc_array = np.append(mfcc_array, mfccs, axis=0) # May need to be axis 1 to work
 
 def get_audio_window_tapered_hamming(audio_sig, start_index, end_index):
     # I think extract the window then do point wise multiplication with the hamming window

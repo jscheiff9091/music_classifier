@@ -9,7 +9,7 @@ def problem1():
     print("Problem 1")
     last_time = 24
     window_size = 2048
-    fft_size = 1000 #?
+    fft_size = 1000 #? Not sure
 
     audio_signals = {}
 
@@ -143,5 +143,5 @@ def test_no_clipping(): # TODO move these to another source file
 if __name__ == "__main__":
     # test_fft()
     # test_clipping()
-    test_no_clipping()
-    # problem1()
+    # test_no_clipping()
+    problem1()
