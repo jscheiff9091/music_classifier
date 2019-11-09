@@ -1,7 +1,9 @@
 from __future__ import division
 import numpy as np
 from scipy.io.wavfile import write
+import matplotlib.pyplot as plt
 
+FILTER_BANK = 0
 MIN_FREQ = 20
 # MAX_FREQ depends on each signal's fs = {fs/2}
 
@@ -55,17 +57,81 @@ def mfcc(fft_coefs, fft_size, fs, Nb=40):
 
 
 def create_filter_bank(fs, Nb=40):
+    """
+    Creates filter bank of 40 (and two half) filters for computing MFCCs
+
+    params
+    ------
+    fs : int
+        Rate of sampling of .wav file being analyzed
+    Nb : int
+        number of filters
+
+    returns
+    -------
+    filter_bank : matrix { 42 x 1024 }
+        Mel Frequency Cepstral Coefficients
+    """
+
     #constants
     f_max = fs/2
+    lin_step = fs / 2048
+    mel_const = 1127.01048
 
-    #Find Mel scale center frequencies
-    mel_min = np.log10(1 + MIN_FREQ/700)
-    mel_max = np.log10(1 + f_max/700)
-    mel_step = (mel_max - mel_min) / (Nb + 2)
+    #what we're gunna calculate :)
+    FILTER_BANK = np.zeros((42, 1024))
+    center_freq = np.zeros(42)
 
-    #convert mel center frequencies to linear scale
+    #Find Mel scale center frequencies   (mel = 1127.01048*log(1 + f/700))
+    mel_min = mel_const * np.log10(1 + MIN_FREQ/700)
+    mel_max = mel_const * np.log10(1 + f_max/700)
+    mel_step = (mel_max - mel_min) / (Nb+1)
+
+    #calculate linear center frequencies
+    for i in range(0, 42):
+        mel_equiv = mel_min + i * mel_step
+        mel_equiv = 10**(mel_equiv / mel_const)
+        center_freq[i] = (mel_equiv - 1) * 700
+
+    #print(center_freq)
 
     #define filters between
+    for i in range(0, 42):
+        if i == 0:
+            left = 0
+            right = center_freq[i+1]
+        elif i == 41:
+            left = center_freq[i-1]
+            right = 0
+        else:
+            left = center_freq[i-1]
+            right = center_freq[i+1]
+        center = center_freq[i]
+
+        k = 2 / (right - left)
+
+        for j in range(0, 1024):
+            check_freq = lin_step*(j+1)
+            if i == 0:
+                if check_freq < right and check_freq > center:
+                    FILTER_BANK[i][j] = k * (right - check_freq) / (right - center)
+                else:
+                    FILTER_BANK[i][j] = 0
+            elif i == 41:
+                if check_freq < center and check_freq > left:
+                    FILTER_BANK[i][j] = k * (check_freq - left) / (center - left)
+                else:
+                    FILTER_BANK[i][j] = 0
+            else:
+                if check_freq < center and check_freq > left:
+                    FILTER_BANK[i][j] = k * (check_freq - left) / (center - left)
+                elif check_freq < right and check_freq > center:
+                    FILTER_BANK[i][j] = k * (right - check_freq) / (right - center)
+                else:
+                    FILTER_BANK[i][j] = 0
+    
+        plt.plot(FILTER_BANK[i])
+    plt.show()    
 
 
 

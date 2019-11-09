@@ -4,6 +4,7 @@ from mfcc import *
 from os import listdir
 import numpy as np
 import matplotlib.pyplot as plt
+import mfcc
 
 def problem1():
     print("Problem 1")
@@ -139,9 +140,14 @@ def test_no_clipping(): # TODO move these to another source file
     print(computed_audio.size)
     scaled = np.int16(computed_audio.real/np.max(np.abs(computed_audio.real)) * 32767)
     write("normal.wav", fs, scaled)
+
+def test_create_filter():
+    create_filter_bank(22050, 40)
+    print(FILTER_BANK)
     
 if __name__ == "__main__":
     # test_fft()
     # test_clipping()
     # test_no_clipping()
-    problem1()
+    # problem1()
+    test_create_filter()
