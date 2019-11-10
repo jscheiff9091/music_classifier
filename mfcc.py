@@ -49,10 +49,18 @@ def mfcc(fft_coefs, fft_size, fs, Nb=40):
 
     returns
     -------
-    mfccs : matrix { 40 x 258 }
+    mfccs : matrix { 42 x 1 }  ???????
         Mel Frequency Cepstral Coefficients
     """
-    return
+
+    #What we're gonna calculate
+    mel_coef = np.zeros(42)
+
+    for i in range(0,42):
+        for j in range(0, 1024):
+            mel_coef[i][j] = mel_coef[i][j] + (np.absolute(FILTER_BANK[i][j] * fft_coefs[j]))**2
+
+    return mel_coef
 
 
 
@@ -81,13 +89,14 @@ def create_filter_bank(fs, Nb=40):
     #what we're gunna calculate :)
     FILTER_BANK = np.zeros((42, 1024))
     center_freq = np.zeros(42)
+    lin_freq = np.zeros(1024)
 
     #Find Mel scale center frequencies   (mel = 1127.01048*log(1 + f/700))
     mel_min = mel_const * np.log10(1 + MIN_FREQ/700)
     mel_max = mel_const * np.log10(1 + f_max/700)
     mel_step = (mel_max - mel_min) / (Nb+1)
 
-    #calculate linear center frequencies
+    #calculate linear scale center frequencies
     for i in range(0, 42):
         mel_equiv = mel_min + i * mel_step
         mel_equiv = 10**(mel_equiv / mel_const)
@@ -97,22 +106,24 @@ def create_filter_bank(fs, Nb=40):
 
     #define filters between
     for i in range(0, 42):
+        center = center_freq[i]
         if i == 0:
             left = 0
             right = center_freq[i+1]
+            k = 1 / (right - center)
         elif i == 41:
             left = center_freq[i-1]
             right = 0
+            k = 1 / (center - left)
         else:
             left = center_freq[i-1]
             right = center_freq[i+1]
-        center = center_freq[i]
-
-        k = 2 / (right - left)
+            k = 2 / (right - left)
 
         for j in range(0, 1024):
             check_freq = lin_step*(j+1)
             if i == 0:
+                lin_freq[j] = check_freq
                 if check_freq < right and check_freq > center:
                     FILTER_BANK[i][j] = k * (right - check_freq) / (right - center)
                 else:
@@ -130,8 +141,11 @@ def create_filter_bank(fs, Nb=40):
                 else:
                     FILTER_BANK[i][j] = 0
     
-        plt.plot(FILTER_BANK[i])
-    plt.show()    
+        #plt.plot(lin_freq, FILTER_BANK[i])
+    #plt.xlabel("Frequency (Hz)")
+    #plt.ylabel("Filter Magnitude")
+    #plt.title("Cochlear Filter Bank")
+    #plt.show()    
 
 
 

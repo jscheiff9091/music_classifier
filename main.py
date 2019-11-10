@@ -143,7 +143,6 @@ def test_no_clipping(): # TODO move these to another source file
 
 def test_create_filter():
     create_filter_bank(22050, 40)
-    print(FILTER_BANK)
     
 if __name__ == "__main__":
     # test_fft()
