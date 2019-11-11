@@ -12,7 +12,7 @@ def compute_mfccs(filter_bank, audio_sig, window_size=2048):
 
     params
     ------
-    filter_bank : matrix {42 x 1024}
+    filter_bank : matrix {40 x 1024}
         mfcc filter banks
     audio_sig : vector {529,200 x 1}
         the audio signal
@@ -79,7 +79,7 @@ def mfcc(filter_bank, fft_vector):
         fourier transform coefficeints of the track up to T=24s
     returns
     -------
-    mfccs : matrix { 40 x 1 }  ???????
+    mfccs : matrix { 40 x 1 }
         Mel Frequency Cepstral Coefficients
     """
 
