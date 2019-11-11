@@ -21,7 +21,7 @@ def compute_mfccs(filter_bank, audio_sig, window_size=2048):
 
     returns
     -------
-    mfcc_array : matrix {42 x 258}
+    mfcc_array : matrix {40 x 515}
         the mfcc array
     """
     # dtft_windows = fft_window(audio_sig, fs, fft_size, window_size)
@@ -73,13 +73,13 @@ def mfcc(filter_bank, fft_vector):
 
     params
     ------
-    filter_bank : matrix {42 x 1024}
+    filter_bank : matrix {40 x 1024}
         audio filter bank
     fft_vector : vector {2048 x 1}
         fourier transform coefficeints of the track up to T=24s
     returns
     -------
-    mfccs : matrix { 42 x 1 }  ???????
+    mfccs : matrix { 40 x 1 }  ???????
         Mel Frequency Cepstral Coefficients
     """
 
@@ -110,7 +110,7 @@ def create_filter_bank(fs, Nb=40):
 
     returns
     -------
-    filter_bank : matrix { 42 x 1024 }
+    filter_bank : matrix { 40 x 1024 }
         Mel Frequency Cepstral Coefficients
     """
 
@@ -174,7 +174,8 @@ def create_filter_bank(fs, Nb=40):
                 else:
                     FILTER_BANK[i][j] = 0
 
-    return FILTER_BANK
+    
+    return FILTER_BANK[1:-1,:]
     
         #plt.plot(lin_freq, FILTER_BANK[i])
     #plt.xlabel("Frequency (Hz)")

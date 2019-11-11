@@ -29,6 +29,8 @@ def problem1():
 
     fs = 22050
     filter_bank = create_filter_bank(fs)
+    print(filter_bank.shape)
+    return
     # Calculate mfcc's
     for wav in audio_dict:
         print("MFCC's : " + wav)
