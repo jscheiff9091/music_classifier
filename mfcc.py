@@ -3,64 +3,97 @@ import numpy as np
 from scipy.io.wavfile import write
 import matplotlib.pyplot as plt
 
-FILTER_BANK = 0
 MIN_FREQ = 20
 # MAX_FREQ depends on each signal's fs = {fs/2}
 
-def compute_mfccs(audio_sig, fs, fft_size, window_size=2048):
+def compute_mfccs(filter_bank, audio_sig, window_size=2048):
+    """
+    Retuns the mfccs of the audio signal with the given signal size
+
+    params
+    ------
+    filter_bank : matrix {42 x 1024}
+        mfcc filter banks
+    audio_sig : vector {529,200 x 1}
+        the audio signal
+    window_size : int
+        window size of the signal to use
+
+    returns
+    -------
+    mfcc_array : matrix {42 x 258}
+        the mfcc array
+    """
     # dtft_windows = fft_window(audio_sig, fs, fft_size, window_size)
     print(audio_sig.size)
     mfcc_array = np.array(())
 
+    audio_array = np.array(())
     num_bins = int(2 * (audio_sig.size / window_size))
     for i in range(num_bins-1):
+        N = int(window_size/2)
         start_index = i* int(window_size/2)
         end_index = start_index + window_size
         signal_window = np.float64(audio_sig[start_index:end_index].copy())
         
         signal_window *= np.hamming(window_size)
 
-        dtft = np.fft.fft(signal_window)
-        mfccs = mfcc(dtft, fft_size)
+        # audio = np.fft.ifft(np.fft.fft(signal_window))
+        # audio = audio.reshape((audio.size, 1))
+        dtft = abs(np.fft.fft(signal_window)) # absolute value to get mag of imag
+        # print(dtft.shape)
+
+        dtft = dtft.reshape((dtft.size, 1))
+        # print(abs(dtft[200:220]))
+        # print(dtft.shape)
+        mfccs = mfcc(filter_bank, dtft) 
+        # print(mfccs.shape)
 
         if len(mfcc_array) == 0:
+            # audio_array = audio
             mfcc_array = mfccs
         else:
-            mfcc_array = np.append(mfcc_array, mfccs, axis=0) # May need to be axis 1 to work
+            # print("looping")
+            # audio_array[-N:] = audio_array[-N:] + audio[:N]
+            # audio_array = np.append(audio_array, audio[N:])
+            # audio_array = audio_array.reshape((audio_array.size,1))
+            mfcc_array = np.append(mfcc_array, mfccs, axis=1) # May need to be axis 1 to work
+    # scaled = np.int16(audio_array.real/np.max(np.abs(audio_array.real)) * 32767)
+    # write("audio_hamming.wav", fs, scaled)
+    return mfcc_array
+
 
 def get_audio_window_tapered_hamming(audio_sig, start_index, end_index):
     # I think extract the window then do point wise multiplication with the hamming window
     pass
 
-def mfcc(fft_coefs, fft_size, fs, Nb=40):
+def mfcc(filter_bank, fft_vector):
     """
     Computes the mfccs for a 24s track snipit
 
     params
     ------
-    fft_coefs : matrix {}
+    filter_bank : matrix {42 x 1024}
+        audio filter bank
+    fft_vector : vector {2048 x 1}
         fourier transform coefficeints of the track up to T=24s
-    fft_size : int
-        Spacing in between linear frequencies from 0 to fs/2
-    fs : int
-        Rate of sampling of .wav file being analyzed
-    Nb : int
-        number of filters
-
     returns
     -------
     mfccs : matrix { 42 x 1 }  ???????
         Mel Frequency Cepstral Coefficients
     """
 
-    #What we're gonna calculate
-    mel_coef = np.zeros(42)
+    N = fft_vector.size # 2048
+    one_sided_fft = fft_vector[:N//2]
+    one_sided_fft_squared = np.square(one_sided_fft)
+    filter_bank_squared = np.square(filter_bank)
 
-    for i in range(0,42):
-        for j in range(0, 1024):
-            mel_coef[i][j] = mel_coef[i][j] + (np.absolute(FILTER_BANK[i][j] * fft_coefs[j]))**2
+    return np.dot(filter_bank_squared, one_sided_fft_squared)
 
-    return mel_coef
+    # for i in range(0,42):
+        # for j in range(0, 1024):
+            # mel_coef[i][j] = mel_coef[i][j] + (np.absolute(filter_bank[i][j] * fft_coefs[j]))**2
+    # return mel_coef
 
 
 
@@ -140,6 +173,8 @@ def create_filter_bank(fs, Nb=40):
                     FILTER_BANK[i][j] = k * (right - check_freq) / (right - center)
                 else:
                     FILTER_BANK[i][j] = 0
+
+    return FILTER_BANK
     
         #plt.plot(lin_freq, FILTER_BANK[i])
     #plt.xlabel("Frequency (Hz)")

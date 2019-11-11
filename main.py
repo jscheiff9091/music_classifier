@@ -12,7 +12,7 @@ def problem1():
     window_size = 2048
     fft_size = 1000 #? Not sure
 
-    audio_signals = {}
+    audio_dict = {}
 
     # Load wavs
     for wav in listdir("wavs"):
@@ -20,18 +20,26 @@ def problem1():
             pass
         elif "wav" in wav: # make sure it's a wav file
             fs, data = wavfile.read("wavs/" + wav)
-            audio_signals[wav] = [fs, data]
+            audio_dict[wav] = [fs*2, data] # wavfile.read returns fs/2 (for some reason...)
 
     # Trim signals to 24s
-    for wav in audio_signals:
-        last_index = get_index_of_time(audio_signals[wav][0], last_time)
-        audio_signals[wav][1] = audio_signals[wav][1][:last_index]
+    for wav in audio_dict:
+        last_index = get_index_of_time(audio_dict[wav][0], last_time)
+        audio_dict[wav][1] = audio_dict[wav][1][:last_index]
 
+    fs = 22050
+    filter_bank = create_filter_bank(fs)
     # Calculate mfcc's
-    for wav in audio_signals:
+    for wav in audio_dict:
         print("MFCC's : " + wav)
-        fs, data = audio_signals[wav]
-        compute_mfccs(data, fs, fft_size, window_size)
+        _fs, data = audio_dict[wav]
+        mfccs = compute_mfccs(filter_bank, data, window_size)
+        # print(mfccs.shape)
+        # print(mfccs)
+        plt.imshow(mfccs)
+        plt.title(wav)
+        plt.show()
+
     
 def get_index_of_time(fs, time):
     return int( fs * time )
@@ -112,8 +120,8 @@ def test_no_clipping(): # TODO move these to another source file
         signal_window *= np.hamming(window_size)
         # print(signal_window)
         # plt.plot(np.blackman(window_size))
-        # plt.plot(signal_window)
-        # plt.show()  
+        plt.plot(signal_window)
+        plt.show()  
 
         # dtft = fft_window(signal_window).reshape((window_size,1))
         audio = np.fft.ifft(np.fft.fft(signal_window))
@@ -148,5 +156,5 @@ if __name__ == "__main__":
     # test_fft()
     # test_clipping()
     # test_no_clipping()
-    # problem1()
-    test_create_filter()
+    problem1()
+    # test_create_filter()
