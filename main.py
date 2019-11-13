@@ -62,7 +62,6 @@ def problem1():
         # im = ax.matshow(C, cmap=cm.gray_r, norm=LogNorm(vmin=0.01, vmax=1))
         plt.gca().invert_yaxis()
         plt.show()
-        return
 
     
 def get_index_of_time(fs, time):
