@@ -9,7 +9,7 @@ import mfcc
 
 def problem1():
     print("Problem 1")
-    last_time = 40
+    last_time = 24
     window_size = 2048
     fft_size = 1000 #? Not sure
 
@@ -58,7 +58,7 @@ def problem1():
         plt.ylabel("filter #")
         title = wav[:-4] + " MFCC's"
         plt.title(title)
-        fig.colorbar(img, orientation="horizontal")
+        # fig.colorbar(img, orientation="horizontal")
         # im = ax.matshow(C, cmap=cm.gray_r, norm=LogNorm(vmin=0.01, vmax=1))
         plt.gca().invert_yaxis()
         plt.show()
@@ -142,8 +142,8 @@ def test_no_clipping(): # TODO move these to another source file
         
         signal_window *= np.hamming(window_size)
         # print(signal_window)
-        # plt.plot(np.blackman(window_size))
-        plt.plot(signal_window)
+        plt.plot(np.blackman(window_size))
+        # plt.plot(signal_window)
         plt.show()  
 
         # dtft = fft_window(signal_window).reshape((window_size,1))
