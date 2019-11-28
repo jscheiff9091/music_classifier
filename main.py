@@ -5,7 +5,7 @@ from os import listdir
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
-import mfcc
+from pitch import *
 
 def problem1():
     print("Problem 1")
@@ -132,7 +132,8 @@ def test_no_clipping(): # TODO move these to another source file
     computed_audio = np.array(())
 
     num_bins = int(2 * (audio_sig.size / window_size))
-    for i in range(num_bins-1):
+    # for i in range(num_bins-1):
+    for i in range(2):
         N = int(window_size/2)
         start_index = i* int(window_size/2)
         end_index = start_index + window_size
@@ -140,12 +141,18 @@ def test_no_clipping(): # TODO move these to another source file
         
         signal_window *= np.hamming(window_size)
         # print(signal_window)
-        plt.plot(np.blackman(window_size))
-        # plt.plot(signal_window)
-        plt.show()  
+        # plt.plot(np.blackman(window_size))
+        # plt.plot(abs(signal_window))
+        # plt.show()  
 
         # dtft = fft_window(signal_window).reshape((window_size,1))
-        audio = np.fft.ifft(np.fft.fft(signal_window))
+        ffts = abs(np.fft.fft(signal_window))
+        fft_mean = (np.mean(ffts)) * np.ones(ffts.shape)
+        plt.plot(fft_mean[:1024])
+        plt.plot(ffts[:1024])
+        plt.show()
+
+        audio = np.fft.ifft(ffts)
         audio = audio.reshape((audio.size, 1))
 
         if computed_audio.size == 0:
@@ -169,6 +176,16 @@ def test_no_clipping(): # TODO move these to another source file
     print(computed_audio.size)
     scaled = np.int16(computed_audio.real/np.max(np.abs(computed_audio.real)) * 32767)
     write("normal.wav", fs, scaled)
+
+def test_find_peak_semitones():
+    lin_res = 22050/2048
+    lin_frq = np.zeros((1024, 1))
+    
+    for i in range(1024):
+        lin_frq[i] = i*lin_res
+
+    fs, audio_sig = wavfile.read("wavs/track201-classical.wav")
+    compute_max_frequencies(audio_sig, lin_frq)
 
 def test_create_filter():
     create_filter_bank(22050, 40)
@@ -232,9 +249,10 @@ def problem2():
         plt.show()
     
 if __name__ == "__main__":
-    # test_fft()
+    #test_fft()
     # test_clipping()
     # test_no_clipping()
     # problem1()
     # test_create_filter()
+    # test_find_peak_semitones()
     problem2()
