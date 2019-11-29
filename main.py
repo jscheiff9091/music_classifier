@@ -178,14 +178,9 @@ def test_no_clipping(): # TODO move these to another source file
     write("normal.wav", fs, scaled)
 
 def test_find_peak_semitones():
-    lin_res = 22050/2048
-    lin_frq = np.zeros((1024, 1))
-    
-    for i in range(1024):
-        lin_frq[i] = i*lin_res
-
     fs, audio_sig = wavfile.read("wavs/track201-classical.wav")
-    compute_max_frequencies(audio_sig, lin_frq)
+    fs = 22050
+    compute_max_frequencies(audio_sig, fs)
 
 def test_create_filter():
     create_filter_bank(22050, 40)
@@ -219,34 +214,11 @@ def problem2():
     for wav in audio_dict:
         print("Getting pitch for: " + wav)
         _fs, data = audio_dict[wav]
-        mfccs = compute_mfccs(filter_bank, data, window_size)
-        # print(mfccs.shape)
-        # print(mfccs)
-        ymin = np.min(mfccs)
-        ymax = np.max(mfccs)
-        # print(ymin)
-        # print(ymax)
-        # return
-        # f = plt.figure()
-        fig, ax = plt.subplots(1,1)
-
-        num_windows = mfccs.shape[1]
-
-        img = ax.imshow(mfccs, norm=LogNorm(vmin=1.0, vmax=1e9))
-        ax.set_xticks([0, int(0.25 * num_windows), int(0.5*num_windows), int(0.75*num_windows), num_windows])
-        x_label_list = [0, int(0.25*last_time), int(0.5*last_time), int(0.75*last_time), last_time]
-
-        ax.set_xticklabels(x_label_list)
-        # plt.imshow(mfccs)
+        peak_freqs = compute_max_frequencies(data, fs)
         
-        plt.xlabel("time (seconds)")
-        plt.ylabel("filter #")
-        title = wav[:-4] + " MFCC's"
-        plt.title(title)
-        # fig.colorbar(img, orientation="horizontal")
-        # im = ax.matshow(C, cmap=cm.gray_r, norm=LogNorm(vmin=0.01, vmax=1))
-        plt.gca().invert_yaxis()
-        plt.show()
+        # get chromas (first get sm's then mod12 to get chromas/notes)
+        
+        
     
 if __name__ == "__main__":
     #test_fft()

@@ -2,7 +2,7 @@ import queue
 import numpy as np
 import matplotlib.pyplot as plt
 
-def compute_max_frequencies(audio_sig, lin_frq, window_size=2048):
+def compute_max_frequencies(audio_sig, fs, window_size=2048):
     '''
     Computes matrix with peak values of the windowed fourier transforms of the audio signal.
 
@@ -10,19 +10,20 @@ def compute_max_frequencies(audio_sig, lin_frq, window_size=2048):
     ------
     audio_sig : vector {529,200 x 1}
         the audio signal
-    window_size : int
-        window size of the signal to use
+    fs : int
+        sampling frequency
+        Only used for debug purposes in plotting
 
     returns
     -------
     fm_matrix : matrix {n x 515}
         semitones of the windowed fourier transform peak
     '''
+    lin_frq = np.linspace(0,1023,1024) * (fs / window_size) # used for plotting during debug
 
     fm_matrix = np.array(())
-
     num_bins = int(2 * (audio_sig.size / window_size))
-    for i in range(20):
+    for i in range(num_bins-1):
         N = int(window_size/2)
         start_index = i* int(window_size/2)
         end_index = start_index + window_size
