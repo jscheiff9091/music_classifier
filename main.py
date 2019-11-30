@@ -202,7 +202,7 @@ def problem2():
 
     # Start out with just chroma
     fs, data = wavfile.read("wavs/chroma.wav")
-    audio_dict[wav] = [fs*2, data] # wavfile.read returns fs/2 (for some reason...)
+    audio_dict["chroma.wav"] = [fs*2, data] # wavfile.read returns fs/2 (for some reason...)
 
     # Trim signals to 24s
     for wav in audio_dict:
@@ -210,6 +210,12 @@ def problem2():
         audio_dict[wav][1] = audio_dict[wav][1][:last_index]
 
     fs = 22050
+    weights = generate_pitch_weights(fs)
+    for i in range(weights.shape[1]):
+        print(weights[:,i].T)
+    # print(weights.T)
+    return
+    
     # Calculate mfcc's
     for wav in audio_dict:
         print("Getting pitch for: " + wav)

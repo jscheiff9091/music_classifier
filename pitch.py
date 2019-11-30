@@ -1,3 +1,4 @@
+from __future__ import division
 import queue
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,12 +13,12 @@ def compute_max_frequencies(audio_sig, fs, window_size=2048):
         the audio signal
     fs : int
         sampling frequency
-        Only used for debug purposes in plotting
+        Only used for DEBUG plotting
 
     returns
     -------
-    fm_matrix : matrix {n x 515}
-        semitones of the windowed fourier transform peak
+    fm_matrix : matrix {1024 x 515}
+        peak frequencies magnitude squared per window
     '''
     lin_frq = np.linspace(0,1023,1024) * (fs / window_size) # used for plotting during debug
 
@@ -57,6 +58,45 @@ def compute_max_frequencies(audio_sig, fs, window_size=2048):
             np.append(fm_matrix, fm_vector, axis=1)
     
     return fm_matrix
+
+def generate_pitch_weights(fs, f0=27.5, window_size=2048):
+    """
+    Generates the pitch weights to scale the peak frequencies
+        by how close they are to a semitone
+
+    params
+    ------
+    fs : int
+        sampling freq
+    f0 : float
+        base frequency to establish octaves
+
+    window_size : int
+        window size for each frame
+
+    returns
+    -------
+    weights : matrix { 12 x 1024 }
+        weights to scale magnitudes
+    """
+    weights = np.zeros((12,1)) # set k=0 to all zeros
+    max_freq = fs / 2.0
+    num_indices = int(window_size / 2.0)
+    scale = max_freq / num_indices
+    print(num_indices)
+    for i in range(num_indices):
+    # for i in range(1,50):
+        f = i * scale
+
+        w = np.zeros((12,1))
+        for j in range(12):
+            r = ( 12*np.log2(f/f0) % 12 ) - j
+            if abs(r) < 1:
+                w[j] = round(np.exp(-(r**2)),3)
+
+        weights = np.append(weights, w, axis=1)
+
+    return weights
 
 def get_averaged_window(window_fft):
     '''
@@ -98,13 +138,18 @@ def find_peak_frequencies(smooth_fft, window_fft, lin_frq):
 
     params
     ------
+    smooth_fft : vector {1024 x 1}
+        smoothed fft's of the audio signal
     window_fft : vector {1024 x 1}
-        fft of audio signal window
+        orig fft of audio signal window
+    lin_frq : vector {1024 x 1}
+        linspacing 0-1023 scaled by fs/window size
+        Used for DEBUG
 
     returns
     -------
-    fm_vector : {N x 1}
-        semitones of the peak freuquencies
+    fm_vector : vector {1024 x 1}
+        magnitudes squared of the peak frequencies
     '''
 
     #Create constants
@@ -153,7 +198,7 @@ def find_peak_frequencies(smooth_fft, window_fft, lin_frq):
                     fm_vector[i] = 0
             
 
-    return fm_vector, frq_dict
+    return fm_vector
 
 
 
