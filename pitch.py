@@ -41,7 +41,7 @@ def compute_max_frequencies(audio_sig, fs, window_size=2048):
 
         #Find peaks
         smooth_fft = get_averaged_window(dtft[:1024])
-        fm_vector, frq_peaks = find_peak_frequencies(smooth_fft[:1024], dtft[:1024], lin_frq)
+        fm_vector = find_peak_frequencies(smooth_fft[:1024], dtft[:1024], lin_frq)
         '''
         print(frq_peaks)
         plt.plot(lin_frq, (np.mean(dtft[:1024]) + np.std(dtft[:1024])) * np.ones(dtft[:1024].shape))
@@ -55,9 +55,46 @@ def compute_max_frequencies(audio_sig, fs, window_size=2048):
         if i == 0:
             fm_matrix = fm_vector
         else:
-            np.append(fm_matrix, fm_vector, axis=1)
+            fm_matrix = np.append(fm_matrix, fm_vector, axis=1)
     
     return fm_matrix
+
+def test_pitch_weights(fs, f0=27.5, window_size=2048):
+    freqs = np.linspace(1, fs/2, window_size / 2)
+    sms = 12*np.log2( freqs / f0 )
+    print sms
+
+def generate_pitch_weights_v2(fs, f0=27.5, window_size=2048):
+    """
+    An attempt to generate the weights Francois' way
+
+    Generates the pitch weights to scale the peak frequencies
+        by how close they are to a semitone
+
+    params
+    ------
+    fs : int
+        sampling freq
+    f0 : float
+        base frequency to establish octaves
+    window_size : int
+        window size for each frame
+
+    returns
+    -------
+    weights : matrix { 12 x 1024 }
+        weights to scale magnitudes
+    """
+    freqs = np.linspace(0, 11025, 1024)
+    freqs[0] = 1e-5
+    octaves = 12 * np.log2(freqs / f0)
+    sms = np.round(octaves)
+    for i in sms:
+        print(i)
+    r = sms - octaves
+
+    # weights = np.zeros(())
+    # return weights
 
 def generate_pitch_weights(fs, f0=27.5, window_size=2048):
     """
@@ -70,7 +107,6 @@ def generate_pitch_weights(fs, f0=27.5, window_size=2048):
         sampling freq
     f0 : float
         base frequency to establish octaves
-
     window_size : int
         window size for each frame
 
@@ -81,18 +117,17 @@ def generate_pitch_weights(fs, f0=27.5, window_size=2048):
     """
     weights = np.zeros((12,1)) # set k=0 to all zeros
     max_freq = fs / 2.0
-    num_indices = int(window_size / 2.0)
-    scale = max_freq / num_indices
-    print(num_indices)
-    for i in range(num_indices):
-    # for i in range(1,50):
+    num_indices = int(window_size / 2.0) # 1024
+    scale = max_freq / num_indices # fk
+    for i in range(1,num_indices):
+    # for i in range(1,2):
         f = i * scale
 
         w = np.zeros((12,1))
-        for j in range(12):
+        for j in range(13):
             r = ( 12*np.log2(f/f0) % 12 ) - j
             if abs(r) < 1:
-                w[j] = round(np.exp(-(r**2)),3)
+                w[j % 12] = np.exp(-(r**2))
 
         weights = np.append(weights, w, axis=1)
 
@@ -217,3 +252,5 @@ else:
     np.append(sm_vector, semitone, axis=0)
     np.append(freq_vector, frequency, axis=0)    #delete
 '''
+if __name__ == "__main__":
+    test_pitch_weights(22050)
