@@ -42,6 +42,9 @@ def compute_max_frequencies(audio_sig, fs, window_size=2048):
         #Find peaks
         smooth_fft = get_averaged_window(dtft[:1024])
         fm_vector = find_peak_frequencies(smooth_fft[:1024], dtft[:1024], lin_frq)
+        # print(np.max(fm_vector))
+        # print(np.max(dtft))
+        # print("---")
         '''
         print(frq_peaks)
         plt.plot(lin_frq, (np.mean(dtft[:1024]) + np.std(dtft[:1024])) * np.ones(dtft[:1024].shape))
@@ -85,9 +88,9 @@ def generate_pitch_weights_v2(fs, f0=27.5, window_size=2048):
     weights : matrix { 12 x 1024 }
         weights to scale magnitudes
     """
-    freqs = np.linspace(0, 11025, 1024)
+    freqs = np.linspace(0, 1024, 1024)
     freqs[0] = 1e-5
-    octaves = 12 * np.log2(freqs / f0)
+    octaves = 12*np.log2(freqs / f0)
     sms = np.round(octaves)
     for i in sms:
         print(i)
@@ -117,8 +120,11 @@ def generate_pitch_weights(fs, f0=27.5, window_size=2048):
     """
     weights = np.zeros((12,1)) # set k=0 to all zeros
     max_freq = fs / 2.0
+    # max_freq = fs
     num_indices = int(window_size / 2.0) # 1024
+    # num_indices = int(window_size) # 2048
     scale = max_freq / num_indices # fk
+    # scale = 1
     for i in range(1,num_indices):
     # for i in range(1,2):
         f = i * scale
@@ -206,6 +212,7 @@ def find_peak_frequencies(smooth_fft, window_fft, lin_frq):
             fm_vector[i] = 0
         else:
             #check if distinct peak
+            '''
             if already_peak:
                 #if new peak in region has greater magnitude than peak already found, set as new peak
                 if window_fft[i] >= threshold and smooth_fft[i] >= threshold and window_fft[i] > window_fft[i-1] and window_fft[i] > window_fft[i+1]:
@@ -224,13 +231,14 @@ def find_peak_frequencies(smooth_fft, window_fft, lin_frq):
                 if smooth_fft[i] < threshold:
                     already_peak = False
             else:
-                if window_fft[i] >= threshold and smooth_fft[i] >= threshold and window_fft[i] > window_fft[i-1] and window_fft[i] > window_fft[i+1]:
-                    fm_vector[i] = (float(window_fft[i]))**2
-                    #frq_dict[int(lin_frq[i])] = (int(window_fft[i]))**2                          #delete
-                    last_frq = i
-                    already_peak = True
-                else:
-                    fm_vector[i] = 0
+                '''
+            if window_fft[i] >= threshold and smooth_fft[i] >= threshold and window_fft[i] > window_fft[i-1] and window_fft[i] > window_fft[i+1]:
+                fm_vector[i] = (float(window_fft[i]))**2
+                #frq_dict[int(lin_frq[i])] = (int(window_fft[i]))**2                          #delete
+                last_frq = i
+                already_peak = True
+            else:
+                fm_vector[i] = 0
             
 
     return fm_vector

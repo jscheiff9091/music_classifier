@@ -193,18 +193,18 @@ def problem2():
     audio_dict = {}
 
     # Load wavs
-    # for wav in listdir("wavs"):
-    #     if wav == "chroma.wav": # ignore chroma
-    #         pass
-    #     elif "wav" in wav: # make sure it's a wav file
-    #         fs, data = wavfile.read("wavs/" + wav)
-    #         audio_dict[wav] = [fs*2, data] # wavfile.read returns fs/2 (for some reason...)
+    for wav in listdir("wavs"):
+        if wav == "chroma.wav": # ignore chroma
+            pass
+        elif "wav" in wav: # make sure it's a wav file
+            fs, data = wavfile.read("wavs/" + wav)
+            audio_dict[wav] = [fs*2, data] # wavfile.read returns fs/2 (for some reason...)
 
     # Start out with just chroma
-    fs, data = wavfile.read("wavs/chroma.wav")
-    # fs, data = wavfile.read("wavs/track492-metal.wav")
-    audio_dict["chroma.wav"] = [fs*2, data] # wavfile.read returns fs/2 (for some reason...)
-    # audio_dict["track492-metal.wav"] = [fs*2, data] # wavfile.read returns fs/2 (for some reason...)
+    # fs, data = wavfile.read("wavs/chroma.wav")
+    # audio_dict["chroma.wav"] = [fs*2, data] # wavfile.read returns fs/2 (for some reason...)
+    # fs, data = wavfile.read("wavs/track707-world.wav")
+    # audio_dict["track707-world.wav"] = [fs*2, data] # wavfile.read returns fs/2 (for some reason...)
 
     # Trim signals to 24s
     # for wav in audio_dict:
@@ -212,38 +212,18 @@ def problem2():
         # audio_dict[wav][1] = audio_dict[wav][1][:last_index]
 
     fs = 22050
-    weights = np.flipud(generate_pitch_weights(fs))
+    # weights = np.flipud(generate_pitch_weights(fs))
+    weights = generate_pitch_weights(fs)
     # weights = generate_pitch_weights_v2(fs)
-    # return
-    # print(weights.shape)
     # for i in range(weights.shape[1]):
-        # print(weights[:,i])
-    # print(weights)
-    # return
-    # weights = weights[:,:13]
-
-    fig, ax = plt.subplots(1,1)
-
-    # num_windows = weights.shape[1]
-
-    img = ax.imshow(weights, interpolation='nearest', aspect='auto') #, norm=LogNorm(vmin=0.0001, vmax=1))
-    # ax.set_xticks([0, int(0.25 * num_windows), int(0.5*num_windows), int(0.75*num_windows), num_windows])
-    # x_label_list = [0, int(0.25*last_time), int(0.5*last_time), int(0.75*last_time), last_time]
-
-    # ax.set_xticklabels(x_label_list)
-    # plt.imshow(mfccs)
-    
-    # plt.xlabel("time (seconds)")
-    # plt.ylabel("filter #")
-    # title = wav[:-4] + " MFCC's"
-    # plt.title(title)
-    # fig.colorbar(img, orientation="horizontal")
-    # im = ax.matshow(C, cmap=cm.gray_r, norm=LogNorm(vmin=0.01, vmax=1))
-    ax.set_ylim(0,11)
-    fig.colorbar(img)
-    plt.gca().invert_yaxis()
-    plt.show()
-    return
+        # print(i)
+        # print(np.round(weights[:,i], 2))
+    # fig, ax = plt.subplots(1,1)
+    # img = ax.imshow(weights, interpolation='nearest', aspect='auto') #, norm=LogNorm(vmin=0.0001, vmax=1))
+    # ax.set_ylim(0,11)
+    # fig.colorbar(img)
+    # plt.gca().invert_yaxis()
+    # plt.show()
     
     print("\n...Ignore above warnings...\n")
     # Calculate mfcc's
@@ -262,25 +242,17 @@ def problem2():
         # for i in range(peak_freqs.shape[1]):
             # print(pcp[:,i])
         pcp[ pcp < 0.01] = 0.01
-        print(pcp.T)
+        # print(pcp.T)
         # print(pcp.shape)
-        # print(np.max(pcp))
+        print(np.max(pcp))
         # print(np.min(pcp))
 
 
         # Plotting
         last_time = int(len(data) / fs)
-        w, h = 10, 5
-        fig, ax = plt.subplots(1,1, figsize=(w,h))
-        l = ax.figure.subplotpars.left
-        r = ax.figure.subplotpars.right
-        t = ax.figure.subplotpars.top
-        b = ax.figure.subplotpars.bottom
-        figw = float(w) /(r-l)
-        figh = float(h) /(t-b)
-        ax.figure.set_size_inches(figw, figh)
+        fig, ax = plt.subplots(1,1)
         num_windows = pcp.shape[1]
-        img = ax.imshow(pcp, norm=LogNorm(vmin=0.01, vmax=1e14))
+        img = ax.imshow(pcp, interpolation='nearest', aspect='auto', norm=LogNorm(vmin=0.01, vmax=1e14))
         ax.set_xticks([0, int(0.25 * num_windows), int(0.5*num_windows), int(0.75*num_windows), num_windows])
         x_label_list = [0, int(0.25*last_time), int(0.5*last_time), int(0.75*last_time), last_time]
 # 
@@ -290,7 +262,7 @@ def problem2():
         # plt.ylabel("filter #")
         title = wav[:-4] + " PCP's"
         plt.title(title)
-        # fig.colorbar(img, orientation="horizontal")
+        fig.colorbar(img) #, orientation="horizontal")
         # im = ax.matshow(C, cmap=cm.gray_r, norm=LogNorm(vmin=0.01, vmax=1))
         plt.gca().invert_yaxis()
         plt.show()
