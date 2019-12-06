@@ -205,6 +205,8 @@ def problem2():
     # audio_dict["chroma.wav"] = [fs*2, data] # wavfile.read returns fs/2 (for some reason...)
     # fs, data = wavfile.read("wavs/track707-world.wav")
     # audio_dict["track707-world.wav"] = [fs*2, data] # wavfile.read returns fs/2 (for some reason...)
+    # fs, data = wavfile.read("wavs/track463-metal.wav")
+    # audio_dict["track463-metal.wav"] = [fs*2, data] # wavfile.read returns fs/2 (for some reason...)
 
     # Trim signals to 24s
     # for wav in audio_dict:
@@ -214,17 +216,21 @@ def problem2():
     fs = 22050
     # weights = np.flipud(generate_pitch_weights(fs))
     weights = generate_pitch_weights(fs)
-    # weights = generate_pitch_weights_v2(fs)
     # for i in range(weights.shape[1]):
-        # print(i)
-        # print(np.round(weights[:,i], 2))
+    #     print(i)
+    #     print(np.round(weights[:,i], 2))
     # fig, ax = plt.subplots(1,1)
-    # img = ax.imshow(weights, interpolation='nearest', aspect='auto') #, norm=LogNorm(vmin=0.0001, vmax=1))
+    # img = ax.imshow(weights, interpolation='nearest', aspect='auto', cmap="plasma") #, norm=LogNorm(vmin=0.0001, vmax=1))
     # ax.set_ylim(0,11)
     # fig.colorbar(img)
+    # plt.title("$f_s$ = 22050Hz weights matrix")
+    # plt.title("$f_s$ = 2048Hz weights matrix")
+    # plt.xlabel("FFT Index")
+    # plt.ylabel("Note #")
     # plt.gca().invert_yaxis()
     # plt.show()
-    
+    # return
+
     print("\n...Ignore above warnings...\n")
     # Calculate mfcc's
     for wav in audio_dict:
@@ -254,14 +260,18 @@ def problem2():
         num_windows = pcp.shape[1]
         img = ax.imshow(pcp, interpolation='nearest', aspect='auto', norm=LogNorm(vmin=0.01, vmax=1e14))
         ax.set_xticks([0, int(0.25 * num_windows), int(0.5*num_windows), int(0.75*num_windows), num_windows])
+        ax.set_yticks(list(range(12)))
         x_label_list = [0, int(0.25*last_time), int(0.5*last_time), int(0.75*last_time), last_time]
-# 
+        y_label_list = ['A', 'A#', 'B', "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"]
+        ax.set_yticklabels(y_label_list)
         ax.set_xticklabels(x_label_list)
         
-        plt.xlabel("time (seconds)")
-        # plt.ylabel("filter #")
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
+        plt.xlabel("time (seconds)", fontsize=22)
+        plt.ylabel("Note", fontsize=22)
         title = wav[:-4] + " PCP's"
-        plt.title(title)
+        plt.title(title, fontsize=22)
         fig.colorbar(img) #, orientation="horizontal")
         # im = ax.matshow(C, cmap=cm.gray_r, norm=LogNorm(vmin=0.01, vmax=1))
         plt.gca().invert_yaxis()
