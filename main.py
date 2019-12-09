@@ -1,12 +1,14 @@
 from __future__ import division
 from scipy.io import wavfile
 from mfcc import *
-from os import listdir
+from os import listdir, path
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from pitch import *
 from klg import *
+import pickle
+import time
 
 def problem1():
     print("Problem 1")
@@ -285,8 +287,8 @@ def load_tracks():
     returns
     -------
     list : length 150
-        Each element is a python vector of the audio track
-        Order is:
+        Each element is a numpy vector of the audio signal
+        In order:
             25 classical
             25 electronic
             25 jazz
@@ -308,33 +310,58 @@ def load_tracks():
 def problem5():
     print("Problem 5")
     window_size = 2048
-
-    audio_data = load_tracks()
-    print(len(audio_data))
-    for i in audio_data:
-        print(len(i))
-    return
-
-    audio_dict = {}
-
-    # Load wavs
-    for wav in listdir("wavs"):
-        if wav == "chroma.wav": # ignore chroma
-            pass
-        elif "wav" in wav: # make sure it's a wav file
-            fs, data = wavfile.read("wavs/" + wav)
-            audio_dict[wav] = [fs*2, data] # wavfile.read returns fs/2 (for some reason...)
-
     fs = 22050
-    weights = generate_pitch_weights(fs)
+
+    # Load data
+    pickle_filename = "track_pcps.pickle"
+    if not path.exists(pickle_filename):
+        print("pickle not found ... generating pcps for all 150 tracks")
+        audio_data = load_tracks()
+
+        # Trim data to center 2min
+        desired_len = 120 * fs
+        for i in range(len(audio_data)):
+            if len(audio_data[i]) > desired_len:
+                center = len(audio_data[i]) // 2
+                audio_data[i] = audio_data[i][center - desired_len//2 : center + desired_len//2]
+            else:
+                print("song shorter than expected")
+
+        print("all tracks trimmed")
+
+        # Generate pcp's of data
+        weights = generate_pitch_weights(fs)
+        audio_pcps = []
+        for i in range(len(audio_data)):
+            # start = time.time()
+            print("pcp #" + str(i))
+            peak_freqs = compute_max_frequencies(audio_data[i], fs)
+            pcps = np.dot( weights, peak_freqs)
+            pcps[ pcps < 0.01] = 0.01
+            audio_pcps.append( pcps )
+            # end = time.time()
+
+        pickle.dump( audio_pcps, open( pickle_filename, "wb" ) )
+    else:
+        print("Found pickle")
+        audio_pcps = pickle.load(open(pickle_filename, "rb"))
+
+    return
+    # calculate pcps + mean + cov
+
+    distances = np.zeros((len(audio_data), len(audio_data)))
+
+    for i in range(len(audio_data)):
+        for j in range(i, len(audio_data)):
+            distances = compute_klg_dist()
+
+    
     print("\n...Ignore above warnings...\n")
     # Calculate mfcc's
     for wav in audio_dict:
         print("Getting pcp's of: " + wav)
         _fs, data = audio_dict[wav]
-        peak_freqs = compute_max_frequencies(data, fs)
-        pcp = np.dot( weights, peak_freqs)
-        pcp[ pcp < 0.01] = 0.01
+        
 
 
 if __name__ == "__main__":
