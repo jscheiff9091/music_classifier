@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def compute_klg_dist(mu1, cov1, mu2, cov2):
+def compute_klg_dist(mu1, cov1, mu2, cov2, gamma=10):
     """
     Computes the klg distance between the two tracks
     Each track is summarized by its mean and covariance

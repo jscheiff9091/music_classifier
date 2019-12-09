@@ -278,9 +278,42 @@ def problem2():
         plt.gca().invert_yaxis()
         plt.show()
 
+def load_tracks():
+    """
+    Loads all of the tracks into an array
+
+    returns
+    -------
+    list : length 150
+        Each element is a python vector of the audio track
+        Order is:
+            25 classical
+            25 electronic
+            25 jazz
+            25 punk
+            25 rock
+            25 world
+    """
+    audio_data = []
+    
+    # Classical
+    genres = ["classical", "electronic", "jazz", "punk", "rock", "world"]
+    for g in genres:
+        for wav in listdir("data/" + g + "/"):
+            fs, data = wavfile.read("data/" + g + "/" + wav)
+            audio_data.append(data)
+
+    return audio_data
+
 def problem5():
     print("Problem 5")
     window_size = 2048
+
+    audio_data = load_tracks()
+    print(len(audio_data))
+    for i in audio_data:
+        print(len(i))
+    return
 
     audio_dict = {}
 
@@ -302,7 +335,7 @@ def problem5():
         peak_freqs = compute_max_frequencies(data, fs)
         pcp = np.dot( weights, peak_freqs)
         pcp[ pcp < 0.01] = 0.01
-        
+
 
 if __name__ == "__main__":
     #test_fft()
