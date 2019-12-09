@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from pitch import *
+from klg import *
 
 def problem1():
     print("Problem 1")
@@ -276,7 +277,33 @@ def problem2():
         # im = ax.matshow(C, cmap=cm.gray_r, norm=LogNorm(vmin=0.01, vmax=1))
         plt.gca().invert_yaxis()
         plt.show()
-    
+
+def problem5():
+    print("Problem 5")
+    window_size = 2048
+
+    audio_dict = {}
+
+    # Load wavs
+    for wav in listdir("wavs"):
+        if wav == "chroma.wav": # ignore chroma
+            pass
+        elif "wav" in wav: # make sure it's a wav file
+            fs, data = wavfile.read("wavs/" + wav)
+            audio_dict[wav] = [fs*2, data] # wavfile.read returns fs/2 (for some reason...)
+
+    fs = 22050
+    weights = generate_pitch_weights(fs)
+    print("\n...Ignore above warnings...\n")
+    # Calculate mfcc's
+    for wav in audio_dict:
+        print("Getting pcp's of: " + wav)
+        _fs, data = audio_dict[wav]
+        peak_freqs = compute_max_frequencies(data, fs)
+        pcp = np.dot( weights, peak_freqs)
+        pcp[ pcp < 0.01] = 0.01
+        
+
 if __name__ == "__main__":
     #test_fft()
     # test_clipping()
@@ -284,4 +311,5 @@ if __name__ == "__main__":
     # problem1()
     # test_create_filter()
     # test_find_peak_semitones()
-    problem2()
+    # problem2()
+    problem5()
