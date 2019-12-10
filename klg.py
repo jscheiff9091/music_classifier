@@ -23,7 +23,7 @@ def compute_klg_dist(mu1, cov1, mu2, cov2, gamma=10):
         The distance between the two tracks
     """
 
-    #k = 12
+    K = 12
     icov1 = np.linalg.inv(cov1)
     icov2 = np.linalg.inv(cov2)
     ico1_co2 = np.dot(icov1, cov2)
@@ -32,8 +32,8 @@ def compute_klg_dist(mu1, cov1, mu2, cov2, gamma=10):
     its_a_dot_product = np.dot((icov1 + icov2), mu_diff)
     epsilon = np.finfo(float).eps
     
-    kl = .5 * (np.trace(ico1_co2 + ico2_co1) + np.dot(mu_diff.T, its_a_dot_product))
-    d = 1 - math.exp(-gamma/(kl + epsilon))
+    kl = .5 * (np.trace(ico1_co2 + ico2_co1) + 0.5*np.dot(mu_diff.T, its_a_dot_product)) -K
+    d = 1 - math.exp(-gamma/(abs(kl) + epsilon))
     return d
 
 
