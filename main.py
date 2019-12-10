@@ -353,60 +353,63 @@ def problem5():
         mus.append(np.mean(song, axis=1))
         covs.append(np.cov(song))
 
-    #for i in range(1, 10):
-    #   gamma = i * 10
+    for i in range(1, 11):
+        gamma = i * 10
 
-    gamma=10
-    #compute distances
-    distances = np.zeros((len(audio_pcps), len(audio_pcps)))
+        #compute distances
+        distances = np.zeros((len(audio_pcps), len(audio_pcps)))
 
-    for i in range(len(audio_pcps)):
-        for j in range(len(audio_pcps)):
-            distances[i,j] = compute_klg_dist(mus[i], covs[i], mus[j], covs[j], gamma)            
+        for i in range(len(audio_pcps)):
+            for j in range(len(audio_pcps)):
+                distances[i,j] = compute_klg_dist(mus[i], covs[i], mus[j], covs[j], gamma)            
 
-    #Image SC distances
-    # fig, ax = plt.subplots(1,1)
-    # img = ax.imshow(distances, interpolation='nearest', aspect='auto') #, norm=LogNorm(vmin=0.01, vmax=1e14))
-    # ticks = np.round(np.linspace(0,150,13))
-    # ax.set_xticks(ticks)
-    # ax.set_yticks(ticks)
-    # xlabel_list = ["|", "Classical","|", "Electronic", "|","Jazz", "|", "Punk", "|", "Rock", "|", "World", "|"]
-    # ylabel_list = ["---", "Classical","---", "Electronic", "---","Jazz", "---", "Punk", "---", "Rock", "---", "World", "---"]
-    # ax.set_yticklabels(ylabel_list)
-    # ax.set_xticklabels(xlabel_list)
-    # plt.xticks(fontsize=20)
-    # plt.yticks(fontsize=20)
-    # plt.xlabel("Genre", fontsize=22)
-    # plt.ylabel("Genre", fontsize=22)
-    # title = "KL Divergences for 150 tracks"
-    # plt.title(title, fontsize=22)
-    # fig.colorbar(img) #, orientation="horizontal")
-    # plt.gca().invert_yaxis()
-    # plt.show()
+        #Image SC distances
+        # fig, ax = plt.subplots(1,1)
+        # img = ax.imshow(distances, interpolation='nearest', aspect='auto') #, norm=LogNorm(vmin=0.01, vmax=1e14))
+        # ticks = np.round(np.linspace(0,150,13))
+        # ax.set_xticks(ticks)
+        # ax.set_yticks(ticks)
+        # xlabel_list = ["|", "Classical","|", "Electronic", "|","Jazz", "|", "Punk", "|", "Rock", "|", "World", "|"]
+        # ylabel_list = ["---", "Classical","---", "Electronic", "---","Jazz", "---", "Punk", "---", "Rock", "---", "World", "---"]
+        # ax.set_yticklabels(ylabel_list)
+        # ax.set_xticklabels(xlabel_list)
+        # plt.xticks(fontsize=20)
+        # plt.yticks(fontsize=20)
+        # plt.xlabel("Genre", fontsize=22)
+        # plt.ylabel("Genre", fontsize=22)
+        # title = "KL Divergences for 150 tracks"
+        # plt.title(title, fontsize=22)
+        # fig.colorbar(img) #, orientation="horizontal")
+        # plt.gca().invert_yaxis()
+        # plt.savefig("figs/kld/kl_150.png") # Save Figure to figs/kld/
+        # plt.show()
 
-    #Compute D bar testing  ------ Problem 6
-    d_bar = compute_d_bar(distances)
-    
-    #Image SC D_Bar
-    fig, ax = plt.subplots(1,1)
-    img = ax.imshow(d_bar, interpolation='nearest', aspect='auto') #, norm=LogNorm(vmin=0.01, vmax=1e14))
-    ticks = np.linspace(0,5,6)
-    ax.set_xticks(ticks)
-    ax.set_yticks(ticks)
-    label_list = ["Classical", "Electronic","Jazz","Punk","Rock","World"]
-    # ylabel_list = ["---", "Classical","---", "Electronic", "---","Jazz", "---", "Punk", "---", "Rock", "---", "World", "---"]
-    ax.set_yticklabels(label_list)
-    ax.set_xticklabels(label_list)
-    plt.xticks(fontsize=20)
-    plt.yticks(fontsize=20)
-    plt.xlabel("Genre", fontsize=22)
-    plt.ylabel("Genre", fontsize=22)
-    title = "Average Distance Between Genres, Gamma=" + str(gamma)
-    plt.title(title, fontsize=22)
-    fig.colorbar(img) #, orientation="horizontal")
-    plt.gca().invert_yaxis()
-    plt.show()
-    
+        #Compute D bar testing  ------ Problem 6
+        d_bar = compute_d_bar(distances)
+        dist_sum = np.round(np.sum(d_bar), 2)
+        print("Gamma: " + str(gamma))
+        print("Dist Sum: " + str(dist_sum))
+        
+        #Image SC D_Bar
+        # fig, ax = plt.subplots(1,1, figsize=(20,10))
+        # img = ax.imshow(d_bar, interpolation='nearest', aspect='auto') #, norm=LogNorm(vmin=0.01, vmax=1e14))
+        # ticks = np.linspace(0,5,6)
+        # ax.set_xticks(ticks)
+        # ax.set_yticks(ticks)
+        # label_list = ["Classical", "Electronic","Jazz","Punk","Rock","World"]
+        # ax.set_yticklabels(label_list)
+        # ax.set_xticklabels(label_list)
+        # plt.xticks(fontsize=20)
+        # plt.yticks(fontsize=20)
+        # plt.xlabel("Genre", fontsize=22)
+        # plt.ylabel("Genre", fontsize=22)
+        # title = "Average Distance Between Genres, Gamma=" + str(gamma) + ", Matrix Sum=" + str(dist_sum)
+        # plt.title(title, fontsize=22)
+        # fig.colorbar(img) #, orientation="horizontal")
+        # plt.gca().invert_yaxis()
+        # plt.savefig("figs/kld/" + "average_dist_" + str(gamma) + ".png") # Saving Figure to figs/kld/
+        # plt.show()
+        
         
 
 
