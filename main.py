@@ -220,7 +220,7 @@ def problem2():
     # weights = np.flipud(generate_pitch_weights(fs))
     weights = generate_pitch_weights(fs)
     # for i in range(weights.shape[1]):
-    #     print(i)
+    #     print(ip)
     #     print(np.round(weights[:,i], 2))
     # fig, ax = plt.subplots(1,1)
     # img = ax.imshow(weights, interpolation='nearest', aspect='auto', cmap="plasma") #, norm=LogNorm(vmin=0.0001, vmax=1))
@@ -346,21 +346,30 @@ def problem5():
         print("Found pickle")
         audio_pcps = pickle.load(open(pickle_filename, "rb"))
 
-    return
     # calculate pcps + mean + cov
+    mus = []
+    covs = []
+    for song in audio_pcps:
+        mus.append(np.mean(song, axis=1))
+        covs.append(np.cov(song))
 
+    #for i in range(1, 10):
+    #   gamma = i * 10
+
+    #compute distances
     distances = np.zeros((len(audio_data), len(audio_data)))
 
     for i in range(len(audio_data)):
-        for j in range(i, len(audio_data)):
-            distances = compute_klg_dist()
+        for j in range(len(audio_data)):
+            distances = compute_klg_dist(mus[i], cov[i], mus[j], cov[j], 10)
+            #distances = compute_klg_dist(mus[i], cov[i], mus[j], cov[j], gamma)
 
+    #Image SC distances
+
+    #Compute D bar testing  ------ Problem 6
+    d_bar = compute_d_bar(distances)
     
-    print("\n...Ignore above warnings...\n")
-    # Calculate mfcc's
-    for wav in audio_dict:
-        print("Getting pcp's of: " + wav)
-        _fs, data = audio_dict[wav]
+    #Image SC D_Bar
         
 
 

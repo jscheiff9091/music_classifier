@@ -1,5 +1,4 @@
 from __future__ import division
-import queue
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -65,7 +64,7 @@ def compute_max_frequencies(audio_sig, fs, window_size=2048):
 def test_pitch_weights(fs, f0=27.5, window_size=2048):
     freqs = np.linspace(1, fs/2, window_size / 2)
     sms = 12*np.log2( freqs / f0 )
-    print sms
+    print(sms)
 
 def generate_pitch_weights_v2(fs, f0=27.5, window_size=2048):
     """
